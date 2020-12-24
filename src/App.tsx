@@ -13,8 +13,8 @@ interface AppState {
 
 class App extends Component<AppProps, AppState> {
 
-  public grade = ["A", "B+", "B", "C+", "C", "D+", "D", "F", "W"];
-  public credit = [1, 2, 3];
+  public gradeList = ["F", "W", "D", "D+", "C", "C+", "B", "B+", "A"] as Grade[];
+  public creditList = [1, 2, 3] as Credit[];
 
   public state = {
     courseList: [] as CourseCard[],
@@ -47,20 +47,12 @@ class App extends Component<AppProps, AppState> {
   }
 
   public calculateWeight(): number {
-    // TODO
-    let weight = 0;
-
-    for (const list of this.state.courseList) {
-      weight += list.netWeight;
-    }
-
-    return weight;
+    return this.state.courseList.reduce((acc, list) => acc += list.netWeight, 0);
   }
 
   /**
    * Should be called when a course is to be added to the list.
    * After adding the course to the list, the displayed GPA should be updated.
-   * @param {*} event
    */
   private addCourse(): void {
     // TODO
@@ -112,6 +104,16 @@ class App extends Component<AppProps, AppState> {
       this.setState({ errorText: "define course id!" });
       return false;
     }
+    // case: course id digit
+    if (this.state.courseIdInput.length !== 6) {
+      this.setState({ errorText: "course id must have 6 digits!" });
+      return false;
+    }
+    // case: course id is not number
+    if (isNaN(+this.state.courseIdInput)) {
+      this.setState({ errorText: "course id must be all number digits!" });
+      return false;
+    }
     // case: empty course name
     if (!this.state.courseNameInput) {
       this.setState({ errorText: "define course name!" });
@@ -119,7 +121,7 @@ class App extends Component<AppProps, AppState> {
     }
     // case: duplicate course id
     if (this.state.courseList.some((list) => this.state.courseIdInput === list.props.courseId)) {
-      this.setState({ errorText: "duplicate course id!" });
+      this.setState({ errorText: "duplicated course id!" });
       return false;
     }
 
@@ -128,9 +130,7 @@ class App extends Component<AppProps, AppState> {
   }
 
   private renderCreditList(): JSX.Element[] {
-    const a = [1, 2, 3] as Credit[];
-
-    return a.map((value) => {
+    return this.creditList.map((value) => {
       const e = () => this.setState({ selCredit: value });
 
       return <div key={value} className={value === this.state.selCredit ? " sel" : ""} onClick={e}>{value}</div>
@@ -138,9 +138,7 @@ class App extends Component<AppProps, AppState> {
   }
 
   private renderGradeList(): JSX.Element[] {
-    const a = ["F", "W", "D", "D+", "C", "C+", "B", "B+", "A"] as Grade[];
-
-    return a.map((value) => {
+    return this.gradeList.map((value) => {
       const c = value.replace("+", "p").toLowerCase() + "-icon";
       const e = () => this.setState({ selGrade: value });
 
@@ -167,6 +165,7 @@ class App extends Component<AppProps, AppState> {
                 <li id="gpa-display-pretext">Your GPA is</li>
                 <li id="gpa-display-text">{this.calculateGPA().toFixed(2)}</li>
                 <li id="gpa-display-credit">
+                  {/* TODO display calculated GPA */}
                   with total credit of {this.calculateWeight()} from {this.state.courseList.length} {this.state.courseList.length === 1 ? "course" : "courses"}
                 </li>
               </div>
@@ -174,6 +173,7 @@ class App extends Component<AppProps, AppState> {
             <aside id="list-display-box" className="neumorphism-container fansy-drop-shadow">
               <li className="course-header-text">My course list<span id="error-text">{this.state.errorText}</span></li>
               <div id="list-container">
+                {/* TODO display courses */}
                 {this.renderCourseCards()}
               </div>
               <div id="course-create-box">
@@ -195,6 +195,7 @@ class App extends Component<AppProps, AppState> {
                     </aside>
                   </div>
                 </aside>
+                {/* TODO add course input form */}
                 <aside id="create-btn" className="flex-center" onClick={() => this.addCourse()}>
                   <i className="fas fa-plus"></i>
                 </aside>
@@ -205,9 +206,6 @@ class App extends Component<AppProps, AppState> {
         <footer>
           <li>Created by Apisit Ritreungroj &copy; 2020. Lab IV for CPE207, React with TypeScript</li>
         </footer>
-        {/* TODO add course input form */}
-        {/* TODO display calculated GPA */}
-        {/* TODO display courses */}
       </React.Fragment>
     );
   }
